@@ -7,6 +7,8 @@ from pybullet_utils.bullet_client import BulletClient
 import time
 from math import *
 
+# https://github.com/haruki1526/LeggedRobotsForBullet
+# https://github.com/engineerm-jp/Inverse_Kinematics_YouTube/blob/main/4Legs/kinematics.py#L128
 
 def RotMatrix3D(rotation=[0,0,0],is_radians=True, order='xyz'):
     

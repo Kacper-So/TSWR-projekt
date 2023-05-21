@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 Tp = 0.01
-end = 6
+end = 10
 
 qdpr = robot.Robot(Tp, 0, 0)
 timesteps = np.linspace(0., end, int(end / Tp))

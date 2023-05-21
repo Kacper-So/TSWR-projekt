@@ -9,6 +9,7 @@ from math import *
 
 # https://github.com/haruki1526/LeggedRobotsForBullet
 # https://github.com/engineerm-jp/Inverse_Kinematics_YouTube/blob/main/4Legs/kinematics.py#L128
+# https://www.ijstr.org/final-print/sep2017/Inverse-Kinematic-Analysis-Of-A-Quadruped-Robot.pdf
 
 def RotMatrix3D(rotation=[0,0,0],is_radians=True, order='xyz'):
     
@@ -52,27 +53,38 @@ class leg():
         self.origin = origin
         self.isRight = isRigth
         self.link_1 = 0
-        self.link_2 = 0.2
-        self.link_3 = 0.2
+        self.link_2 = 0.18
+        self.link_3 = 0.18
+        self.phi = radians(90)
 
     def inverse_kinematics(self, refPosOrient):
-        print(refPosOrient[3:])
-        refPosOrient = np.asarray((inv(RotMatrix3D(refPosOrient[3:], True)) * ((np.array(refPosOrient[:3]) + self.origin).transpose())).transpose())
-        refPosOrient = np.asarray(refPosOrient[3:] - self.origin).flatten()
-        x, y, z = refPosOrient[0], refPosOrient[1], refPosOrient[2]
+        refPosOrient = np.asarray((inv(RotMatrix3D(refPosOrient[3:], True)) @ ((np.array(refPosOrient[:3]) + self.origin).transpose())).transpose())
+        refPosOrient = np.asarray([refPosOrient[0][0], refPosOrient[1][0], refPosOrient[2][0]] - self.origin).flatten()
+        x, y, z = refPosOrient[0], refPosOrient[1], refPosOrient[2]    # unpack coordinates
+        
+        # length of vector projected on the YZ plane. equiv. to len_A = sqrt(y**2 + z**2)
         len_A = norm([0,y,z])   
+        
+        # a_1 : angle from the positive y-axis to the end-effector (0 <= a_1 < 2pi)
+        # a_2 : angle bewtween len_A and leg's projection line on YZ plane
+        # a_3 : angle between link1 and length len_A
         a_1 = point_to_rad(y,z)                     
-        a_2 = math.asin(self.link_1/len_A) 
-        a_3 = (math.pi / 2) - a_2
+        a_2 = asin(sin(self.phi)*self.link_1/len_A) 
+        a_3 = pi - a_2 - self.phi                   
+        
+        # angle of link1 about the x-axis 
         if self.isRight: theta_1 = a_1 - a_3
         else: 
             theta_1 = a_1 + a_3
-            if theta_1 >= 2*math.pi: theta_1 -= 2*math.pi
-        if self.isRight: R = theta_1 - math.pi
-        else: R = theta_1
-        j2 = np.array([0,self.link_1*math.cos(theta_1),self.link_1*math.sin(theta_1)])
-        j4 = np.array(refPosOrient[3:])
+            if theta_1 >= 2*pi: theta_1 -= 2*pi
+        
+        j2 = np.array([0,self.link_1*cos(theta_1),self.link_1*sin(theta_1)])
+        j4 = np.array(refPosOrient)
         j4_2_vec = j4 - j2 # vector from j2 to j4
+        
+        if self.isRight: R = theta_1 - self.phi - pi/2
+        else: R = theta_1 + self.phi - pi/2
+        
         # create rotation matrix to work on a new 2D plane (XZ_)
         rot_mtx = RotMatrix3D([-R,0,0],is_radians=True)
         j4_2_vec_ = rot_mtx * (np.reshape(j4_2_vec,[3,1]))
@@ -92,13 +104,19 @@ class leg():
         # b_2 : angle between len_B and link_2
         # b_3 : angle between link_2 and link_3
         b_1 = point_to_rad(x_, z_)  
-        b_2 = math.acos((self.link_2**2 + len_B**2 - self.link_3**2) / (2 * self.link_2 * len_B)) 
-        b_3 = math.acos((self.link_2**2 + self.link_3**2 - len_B**2) / (2 * self.link_2 * self.link_3))  
+        b_2 = acos((self.link_2**2 + len_B**2 - self.link_3**2) / (2 * self.link_2 * len_B)) 
+        b_3 = acos((self.link_2**2 + self.link_3**2 - len_B**2) / (2 * self.link_2 * self.link_3))  
         
         # assuming theta_2 = 0 when the leg is pointing down (i.e., 270 degrees offset from the +ve x-axis)
         theta_2 = b_1 - b_2    
-        theta_3 = math.pi - b_3
-        return [theta_1, theta_2, theta_3]
+        theta_3 = pi - b_3
+        
+        
+        # modify angles to match robot's configuration (i.e., adding offsets)
+        # angles = self.angle_corrector(angles=[theta_1, theta_2, theta_3], is_right=is_right)
+
+        # print(degrees(angles[0]))
+        return [theta_1, theta_2 ,theta_3]
 
 class Robot:
     def __init__(self, timeStep, startPosition, startOrientation,):
@@ -115,16 +133,19 @@ class Robot:
         self.LH = leg(False, np.array([-0.2,0.11,0.]))
         
     def set_control(self, u):
+        v = [0,0,0,0,0,0,0,0,0,0,0,0]
         for i in range(self.client.getNumJoints(0)):
-            self.client.setJointMotorControl2(0, i, pb.POSITION_CONTROL, **dict(force=u[i]))
+            self.client.setJointMotorControl2(0, i, pb.POSITION_CONTROL, targetPosition=u[i], targetVelocity=v[i], force=1)
 
     def calculate_inverse_kinematics(self):
-        robotPosition, robotOrientation = self.client.getBasePositionAndOrientation(self.robotId)
-        uRF = self.RF.inverse_kinematics([robotPosition[0], robotPosition[1], robotPosition[2], robotOrientation[0], robotOrientation[1], robotOrientation[2]])
-        uLF = self.LF.inverse_kinematics([robotPosition[0], robotPosition[1], robotPosition[2], robotOrientation[0], robotOrientation[1], robotOrientation[2]])
-        uRH = self.RH.inverse_kinematics([robotPosition[0], robotPosition[1], robotPosition[2], robotOrientation[0], robotOrientation[1], robotOrientation[2]])
-        uLH = self.LH.inverse_kinematics([robotPosition[0], robotPosition[1], robotPosition[2], robotOrientation[0], robotOrientation[1], robotOrientation[2]])
+        robot_cords = [0,0,-0.1,0,0,0]
+        uRF = self.RF.inverse_kinematics(robot_cords)
+        uLF = self.LF.inverse_kinematics(robot_cords)
+        uRH = self.RH.inverse_kinematics(robot_cords)
+        uLH = self.LH.inverse_kinematics(robot_cords)
         u = [uRF[0], uRF[1], uRF[2], uLF[0], uLF[1], uLF[2], uRH[0], uRH[1], uRH[2], uLH[0], uLH[1], uLH[2]]
+        # print(u)
+        # u = [0,0,0,0,0,0,0,0,0,0,0,0]
         return u
 
 

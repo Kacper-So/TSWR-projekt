@@ -18,24 +18,38 @@ class leg():
         self.phi = phi
         self.Tp = Tp
 
-        b_est_1 = 1
-        b_est_2 = 1
-        b_est_3 = 1
-        kp_est_1 = 100
-        kp_est_2 = 100
-        kp_est_3 = 100
-        kd_est_1 = 100
-        kd_est_2 = 100
-        kd_est_3 = 100
-        p1 = 20
-        p2 = 20
-        p3 = 20
+        # b_est_1 = 10
+        # b_est_2 = 10
+        # b_est_3 = 10
+        # kp_est_1 = 60
+        # kp_est_2 = 75
+        # kp_est_3 = 200
+        # kd_est_1 = 60
+        # kd_est_2 = 60
+        # kd_est_3 = 60
+        # p1 = 6
+        # p2 = 6
+        # p3 = 6        
+        b_est_1 = 500
+        b_est_2 = 500
+        b_est_3 = 500
+        kp_est_1 = 70
+        kp_est_2 = 75
+        kp_est_3 = 60
+        kd_est_1 = 50
+        kd_est_2 = 1
+        kd_est_3 = 1
+        p1 = 15
+        p2 = 10
+        p3 = 10
 
-        q_0 = self.inverse_kinematics([0, 0, 0.2, 0 * math.pi/180, 0 * math.pi/180, 0 * math.pi/180], [0, 0, 0])
+        q_0 = self.inverse_kinematics([0, 0, -0.2, 0 * math.pi/180, 0 * math.pi/180, 0 * math.pi/180], [0, 0, 0])
+        q_dot0 = [0, 0, 0]
 
-        self.controller = ADRC_controller(params=[[b_est_1, kp_est_1, kd_est_1, p1, q_0[0]],
-                                                  [b_est_2, kp_est_2, kd_est_2, p2, q_0[1]],
-                                                  [b_est_3, kp_est_3, kd_est_3, p3, q_0[2]]], Tp=self.Tp, origin=self.origin)
+
+        self.controller = ADRC_controller(params=[[b_est_1, kp_est_1, kd_est_1, p1, np.array([q_0[0], q_dot0[0]])],
+                                                  [b_est_2, kp_est_2, kd_est_2, p2, np.array([q_0[1], q_dot0[1]])],
+                                                  [b_est_3, kp_est_3, kd_est_3, p3, np.array([q_0[2], q_dot0[2]])]], Tp=self.Tp, origin=self.origin)
         
 
     def inverse_kinematics(self, refPosOrient, legPos):
@@ -71,7 +85,7 @@ class Robot:
         self.robotId = self.client.loadURDF("robot.urdf")
         self.planeId = self.client.loadURDF("plane.urdf")
         self.client.setTimeStep(timeStep)
-        for j in range(self.client.getNumJoints(0)):
+        for j in range(12):
             self.client.setJointMotorControl2(0, j, pb.POSITION_CONTROL, force=0)
         self.RF = leg(True, np.array([0.2,-0.11,0.]), -math.pi/2, timeStep)
         self.LF = leg(True, np.array([0.2,0.11,0.]), math.pi/2, timeStep)
@@ -79,16 +93,19 @@ class Robot:
         self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, timeStep)
         
     def set_control(self, q):
-        x = self.client.getJointState()
-        print(x)
-        uRF = self.RF.controller.calculate_control(q[0:3], )
-        uLF = self.RF.controller.calculate_control(q[3:6], )
-        uRH = self.RF.controller.calculate_control(q[6:9], )
-        uLH = self.RF.controller.calculate_control(q[9:12], )
-        u = [uRF[0], uRF[1], uRF[2], uLF[0], uLF[1], uLF[2], uRH[0], uRH[1], uRH[2], uLH[0], uLH[1], uLH[2]]
+        x = [0.] * 24
+        for i in range(11):
+            x[i], x[i + 2], _, _ = self.client.getJointState(0, i + 1)
+        q_dot = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        q_ddot = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+        uRF = self.RF.controller.calculate_control(np.array([x[0:3], x[12:15]]).flatten(), q[0:3], q_dot[0:3], q_ddot[0:3])
+        uLF = self.RF.controller.calculate_control(np.array([x[3:6], x[15:18]]).flatten(), q[3:6], q_dot[3:6], q_ddot[3:6])
+        uRH = self.RF.controller.calculate_control(np.array([x[6:9], x[18:21]]).flatten(), q[6:9], q_dot[6:9], q_ddot[6:9])
+        uLH = self.RF.controller.calculate_control(np.array([x[9:12], x[21:24]]).flatten(), q[9:12], q_dot[9:12], q_ddot[9:12])
+        u = [uRF[0], uRF[1], uRF[2], uLF[0], uLF[1], uLF[2], uRH[0], uRH[1], uRH[2], uLH[0], uLH[1], uLH[2]]
         for i in range(self.client.getNumJoints(0)):
-            self.client.setJointMotorControl2(0, i, pb.TORQUE_CONTROLL, **dict(force=u[i]))
+            self.client.setJointMotorControl2(0, i, pb.TORQUE_CONTROL, **dict(force=u[i]))
 
     def calculate_inverse_kinematics(self, body_trajectory, RF_trajectory, LF_trajectory, RH_trajectory, LH_trajectory):
         robot_cords = [0, 0, 0.2, 0 * math.pi/180, 0 * math.pi/180, 0 * math.pi/180]

@@ -17,6 +17,7 @@ class ADRCJointController():
 
     def set_b(self, b):
         self.b = b
+        print(b)
         B = np.array([[0], [b], [0]])
         self.eso.set_B(B)
 
@@ -35,5 +36,4 @@ class ADRCJointController():
         M = self.model.M(x_copy)
         M = np.linalg.inv(M)
         self.set_b(M[index, index])
-        print(u)
         return u

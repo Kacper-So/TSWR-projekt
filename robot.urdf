@@ -26,7 +26,7 @@
     <child link="rf_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.2 -0.11 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -64,7 +64,7 @@
     <child link="rf_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -102,7 +102,7 @@
     <child link="rf_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -147,7 +147,7 @@
     <child link="lf_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.2 0.11 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -185,7 +185,7 @@
     <child link="lf_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -223,7 +223,7 @@
     <child link="lf_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -267,7 +267,7 @@
     <child link="rh_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="-0.2 -0.11 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -305,7 +305,7 @@
     <child link="rh_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -343,7 +343,7 @@
     <child link="rh_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -387,7 +387,7 @@
     <child link="lh_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="-0.2 0.11 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -425,7 +425,7 @@
     <child link="lh_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 
@@ -463,7 +463,7 @@
     <child link="lh_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.02"/>
+    <dynamics damping="0.0001"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
 

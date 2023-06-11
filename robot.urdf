@@ -3,8 +3,8 @@
   <link name="base">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="2.792"/>
-      <inertia ixx="0.017409405067" ixy="0.0" ixz="0.0" iyy="0.043070296402" iyz="0.0" izz="0.052179256932"/>
+      <mass value="3."/>
+      <inertia ixx="1." ixy="0.0" ixz="0.0" iyy="1." iyz="0.0" izz="1."/>
     </inertial>
     <visual>
       <geometry>
@@ -26,26 +26,15 @@
     <child link="rf_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.2 -0.11 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rf_abad_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rf_abad_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rf_abad_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rf_abduction_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.0216"/>
-      <inertia ixx="9e-07" ixy="0.0" ixz="0.0" iyy="3.6e-06" iyz="0.0" izz="3.06e-06"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -64,26 +53,15 @@
     <child link="rf_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rf_hip_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rf_hip_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rf_hip_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rf_upper_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.033267"/>
-      <mass value="0.376687"/>
-      <inertia ixx="0.001895275931" ixy="0.0" ixz="0.0" iyy="0.002059293642" iyz="0.0" izz="0.00028213453"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -102,26 +80,15 @@
     <child link="rf_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rf_knee_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rf_knee_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rf_knee_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rf_lower_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.155989"/>
-      <mass value="0.140882"/>
-      <inertia ixx="0.000664235357" ixy="0.0" ixz="0.0" iyy="0.000664515268" iyz="0.0" izz="1.9650311e-05"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -147,26 +114,15 @@
     <child link="lf_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.2 0.11 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lf_abad_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lf_abad_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lf_abad_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lf_abduction_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.0216"/>
-      <inertia ixx="9e-07" ixy="0.0" ixz="0.0" iyy="3.6e-06" iyz="0.0" izz="3.06e-06"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -185,26 +141,15 @@
     <child link="lf_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lf_hip_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lf_hip_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lf_hip_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lf_upper_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.033267"/>
-      <mass value="0.376687"/>
-      <inertia ixx="0.001895275931" ixy="0.0" ixz="0.0" iyy="0.002059293642" iyz="0.0" izz="0.00028213453"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -223,26 +168,15 @@
     <child link="lf_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lf_knee_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lf_knee_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lf_knee_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lf_lower_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.155989"/>
-      <mass value="0.140882"/>
-      <inertia ixx="0.000664235357" ixy="0.0" ixz="0.0" iyy="0.000664515268" iyz="0.0" izz="1.9650311e-05"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -267,26 +201,15 @@
     <child link="rh_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="-0.2 -0.11 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rh_abad_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rh_abad_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rh_abad_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rh_abduction_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.0216"/>
-      <inertia ixx="9e-07" ixy="0.0" ixz="0.0" iyy="3.6e-06" iyz="0.0" izz="3.06e-06"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -305,26 +228,15 @@
     <child link="rh_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rh_hip_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rh_hip_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rh_hip_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rh_upper_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.033267"/>
-      <mass value="0.376687"/>
-      <inertia ixx="0.001895275931" ixy="0.0" ixz="0.0" iyy="0.002059293642" iyz="0.0" izz="0.00028213453"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -343,26 +255,15 @@
     <child link="rh_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="rh_knee_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="rh_knee_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="rh_knee_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="rh_lower_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.155989"/>
-      <mass value="0.140882"/>
-      <inertia ixx="0.000664235357" ixy="0.0" ixz="0.0" iyy="0.000664515268" iyz="0.0" izz="1.9650311e-05"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -387,26 +288,15 @@
     <child link="lh_abduction_link"/>
     <axis xyz="1 0 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="-0.2 0.11 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lh_abad_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lh_abad_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lh_abad_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lh_abduction_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.0216"/>
-      <inertia ixx="9e-07" ixy="0.0" ixz="0.0" iyy="3.6e-06" iyz="0.0" izz="3.06e-06"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -425,26 +315,15 @@
     <child link="lh_upper_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lh_hip_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lh_hip_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lh_hip_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lh_upper_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.033267"/>
-      <mass value="0.376687"/>
-      <inertia ixx="0.001895275931" ixy="0.0" ixz="0.0" iyy="0.002059293642" iyz="0.0" izz="0.00028213453"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>
@@ -463,26 +342,15 @@
     <child link="lh_lower_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.2"/>
-    <dynamics damping="0.0001"/>
+    <dynamics damping="0.02"/>
     <limit effort="8.0" lower="-2.5" upper="2.5" velocity="6.0"/>
   </joint>
-
-  <!-- <transmission name="lh_knee_joint_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="lh_knee_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="lh_knee_motor">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanismReduction>1</mechanismReduction>
-    </actuator>
-  </transmission> -->
 
   <link name="lh_lower_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.155989"/>
-      <mass value="0.140882"/>
-      <inertia ixx="0.000664235357" ixy="0.0" ixz="0.0" iyy="0.000664515268" iyz="0.0" izz="1.9650311e-05"/>
+      <mass value="0.25"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
     </inertial>
     <visual>
       <geometry>

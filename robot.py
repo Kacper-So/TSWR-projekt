@@ -6,7 +6,6 @@ import math
 from pybullet_utils.bullet_client import BulletClient
 import time
 from math import *
-from controller import controller
 
 class leg():
     def __init__(self, isRigth, origin, phi, linkidx, Tp):
@@ -18,9 +17,6 @@ class leg():
         self.phi = phi
         self.Tp = Tp
         self.linkIdx = linkidx
-
-        self.controller = controller(origin=self.origin)
-        
 
     def inverse_kinematics(self, refPosOrient, legPos):
         position = refPosOrient[:3]
@@ -55,6 +51,7 @@ class Robot:
         self.robotId = self.client.loadURDF("robot.urdf")
         self.planeId = self.client.loadURDF("plane.urdf")
         self.client.setTimeStep(timeStep)
+        self.mv_phase = 0
         self.Tp = timeStep
         for j in range(12):
             self.client.setJointMotorControl2(0, j, pb.POSITION_CONTROL, force=0)
@@ -64,31 +61,36 @@ class Robot:
         self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, [10, 11, 12], timeStep)
         self.client.resetBasePositionAndOrientation(self.robotId, initBodyPos[0:3], [0, 0, 0, 1.])
         
-    def set_control(self, q, q_dot, q_ddot):
+    def set_control(self, body_pos, RF_pos, LF_pos, RH_pos, LH_pos):
         x = [0.] * 24
         for i in range(11):
             x[i], x[i + 2], _, _ = self.client.getJointState(0, i + 1)
-        uRF = self.RF.controller.calculate_control(np.array([x[0:3], x[12:15]]).flatten(), q[0:3], q_dot[0:3], q_ddot[0:3])
-        uLF = self.RF.controller.calculate_control(np.array([x[3:6], x[15:18]]).flatten(), q[3:6], q_dot[3:6], q_ddot[3:6])
-        uRH = self.RF.controller.calculate_control(np.array([x[6:9], x[18:21]]).flatten(), q[6:9], q_dot[6:9], q_ddot[6:9])
-        uLH = self.RF.controller.calculate_control(np.array([x[9:12], x[21:24]]).flatten(), q[9:12], q_dot[9:12], q_ddot[9:12])
-        u = [uRF[0], uRF[1], uRF[2], uLF[0], uLF[1], uLF[2], uRH[0], uRH[1], uRH[2], uLH[0], uLH[1], uLH[2]]
-        v= [0,0,0,0,0,0,0,0,0,0,0,0]
+        q = self.calculate_inverse_kinematics(body_pos, RF_pos, LF_pos, RH_pos, LH_pos)
         for i in range(self.client.getNumJoints(0)):
-            # self.client.setJointMotorControl2(0, i, pb.TORQUE_CONTROL, **dict(force=u[i]))
-            self.client.setJointMotorControl2(0, i, pb.POSITION_CONTROL, force=10, targetPosition=u[i], targetVelocity=v[i])
-    
-    def generate_trajectory(self):
-        
-        return 0
+            self.client.setJointMotorControl2(0, i, pb.POSITION_CONTROL, force=100, targetPosition=q[i], targetVelocity=0)
 
-    def calculate_inverse_kinematics(self, body_trajectory, RF_trajectory, LF_trajectory, RH_trajectory, LH_trajectory):
-        qRF = self.RF.inverse_kinematics(body_trajectory, RF_trajectory)
-        qLF = self.LF.inverse_kinematics(body_trajectory, LF_trajectory)
-        qRH = self.RH.inverse_kinematics(body_trajectory, RH_trajectory)
-        qLH = self.LH.inverse_kinematics(body_trajectory, LH_trajectory)
+    def calculate_inverse_kinematics(self, body_pos, RF_pos, LF_pos, RH_pos, LH_pos):
+        qRF = self.RF.inverse_kinematics(body_pos, RF_pos)
+        qLF = self.LF.inverse_kinematics(body_pos, LF_pos)
+        qRH = self.RH.inverse_kinematics(body_pos, RH_pos)
+        qLH = self.LH.inverse_kinematics(body_pos, LH_pos)
         q = [qRF[0], qRF[1], qRF[2], qLF[0], qLF[1], qLF[2], qRH[0], qRH[1], qRH[2], qLH[0], qLH[1], qLH[2]]
         return q
+    
+    def calculate_trajectory(self):
+        # LF
+        if self.mv_phase == 0 :
+            self.mv_phase = 1
+        # RH
+        if self.mv_phase == 1 :
+            self.mv_phase = 2
+        # LH
+        if self.mv_phase == 2 :
+            self.mv_phase = 3
+        # RF
+        if self.mv_phase == 3 :
+            self.mv_phase = 0
+        
 
     def simulation_step(self):
         self.client.stepSimulation()

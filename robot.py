@@ -8,7 +8,7 @@ import time
 from math import *
 
 class leg():
-    def __init__(self, isRigth, origin, phi, linkidx, Tp):
+    def __init__(self, isRigth, origin, phi, linkidx, initialPhase, Tp):
         self.origin = origin
         self.isRight = isRigth
         self.link_1 = 0.
@@ -16,6 +16,7 @@ class leg():
         self.link_3 = 0.20
         self.phi = phi
         self.Tp = Tp
+        self.phase = initialPhase
         self.linkIdx = linkidx
 
     def forward_kinematics(self, q):
@@ -53,6 +54,13 @@ class leg():
         theta_2=alfa_xzp+alfa_off
         return [theta_1, theta_2, theta_3]
     
+    # def calculate_trajcetory(self, phase, elapsed):
+    #     if phase:
+            
+    #     else:
+    #         x = 
+    #     return [x, y, z]
+    
 
 class Robot:
     def __init__(self, timeStep, initBodyPos):
@@ -61,14 +69,15 @@ class Robot:
         self.robotId = self.client.loadURDF("robot.urdf")
         self.planeId = self.client.loadURDF("plane.urdf")
         self.client.setTimeStep(timeStep)
-        self.mv_phase = 0
+        self.elapsed = 0
+        self.phaseLenght = 1
         self.Tp = timeStep
         for j in range(12):
             self.client.setJointMotorControl2(0, j, pb.POSITION_CONTROL, force=0)
-        self.RF = leg(True, np.array([0.2,-0.11,0.]), -math.pi/2, [1, 2, 3], timeStep)
-        self.LF = leg(False, np.array([0.2,0.11,0.]), math.pi/2, [4, 5, 6], timeStep)
-        self.RH = leg(True, np.array([-0.2,-0.11,0.]), math.pi/2, [7, 8, 9], timeStep)
-        self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, [10, 11, 12], timeStep)
+        self.RF = leg(True, np.array([0.2,-0.11,0.]), -math.pi/2, [1, 2, 3], False, timeStep)
+        self.LF = leg(False, np.array([0.2,0.11,0.]), math.pi/2, [4, 5, 6], True, timeStep)
+        self.RH = leg(True, np.array([-0.2,-0.11,0.]), math.pi/2, [7, 8, 9], True, timeStep)
+        self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, [10, 11, 12], False, timeStep)
         self.client.resetBasePositionAndOrientation(self.robotId, initBodyPos[0:3], [0, 0, 0, 1.])
         
     def set_control(self, RF_pos, LF_pos, RH_pos, LH_pos):
@@ -84,29 +93,21 @@ class Robot:
         qLF = self.LF.inverse_kinematics(LF_pos)
         qRH = self.RH.inverse_kinematics(RH_pos)
         qLH = self.LH.inverse_kinematics(LH_pos)
-        print("rdy")
-        print(self.RF.forward_kinematics(qRF))
-        print(self.LF.forward_kinematics(qLF))
-        print(self.RH.forward_kinematics(qRH))
-        print(self.LH.forward_kinematics(qLH))
+        # print("rdy")
+        # print(self.RF.forward_kinematics(qRF))
+        # print(self.LF.forward_kinematics(qLF))
+        # print(self.RH.forward_kinematics(qRH))
+        # print(self.LH.forward_kinematics(qLH))
         q = [qRF[0], qRF[1], qRF[2], qLF[0], qLF[1], qLF[2], qRH[0], qRH[1], qRH[2], qLH[0], qLH[1], qLH[2]]
         return q
     
-    def calculate_trajectory(self):
-        # LF
-        if self.mv_phase == 0 :
-            self.mv_phase = 1
-        # RH
-        if self.mv_phase == 1 :
-            self.mv_phase = 2
-        # LH
-        if self.mv_phase == 2 :
-            self.mv_phase = 3
-        # RF
-        if self.mv_phase == 3 :
-            self.mv_phase = 0
-        
-
     def simulation_step(self):
         self.client.stepSimulation()
         time.sleep(self.Tp)
+        self.elapsed = self.elapsed + self.Tp
+        if self.elapsed > self.phaseLenght:
+            self.elapsed = 0
+            self.LF.phase = not self.LF.phase
+            self.LH.phase = not self.LH.phase
+            self.RF.phase = not self.RF.phase
+            self.RH.phase = not self.RH.phase

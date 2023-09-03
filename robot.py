@@ -18,29 +18,24 @@ class leg():
         self.Tp = Tp
         self.linkIdx = linkidx
 
-    def inverse_kinematics(self, refPosOrient, legPos):
-        position = refPosOrient[:3]
-        roll = refPosOrient[3]
-        yaw = refPosOrient[4]
-        pitch = refPosOrient[5]
-        R_x = np.array([[1., 0., 0., 0.], [0., math.cos(roll), -math.sin(roll), 0.], [0., math.sin(roll), math.cos(roll), 0.], [0., 0., 0., 1.]])
-        R_y = np.array([[math.cos(yaw), 0., math.sin(yaw), 0.], [0., 1., 0., 0.], [-math.sin(yaw), 0., math.cos(yaw), 0.], [0., 0., 0., 1.]])
-        R_z = np.array([[math.cos(pitch), -math.sin(pitch), 0., 0.], [math.sin(pitch), math.cos(pitch), 0., 0.], [0., 0., 1., 0.], [0., 0., 0., 1.]])
-        R_xyz = R_x @ R_y @ R_z
-        T_M = R_xyz @ np.array([[1, 0, 0, position[0]], [0, 1, 0, position[1]], [0, 0, 1, position[2]], [0, 0, 0, 1]])
-        T_leg = T_M @ np.array([[math.cos(self.phi), 0, math.sin(self.phi), self.origin[0]], [0, 1, 0, 0], [-math.sin(self.phi), 0, math.cos(self.phi), self.origin[1]], [0, 0, 0, 1]])
-        x_leg_0 = T_leg[0][3]
-        y_leg_0 = T_leg[1][3]
-        z_leg_0 = T_leg[2][3]
-        x_leg = x_leg_0 + legPos[0] - self.origin[0]
-        y_leg = y_leg_0 + legPos[1] - self.origin[2]
-        z_leg = z_leg_0 + legPos[2] - self.origin[1]
-        theta_1 = math.atan2(y_leg, x_leg)
-        D = math.sqrt(math.pow(x_leg, 2) + math.pow(y_leg, 2)) - self.link_3
-        E = z_leg
-        F = math.sqrt(math.pow(D, 2) + math.pow(E, 2))
-        theta_2 = math.atan2(E, D) + math.acos((math.pow(self.link_2, 2) - math.pow(F, 2)) / (2 * self.link_2 * F))
-        theta_3 = math.acos((math.pow(F, 2) - math.pow(self.link_2, 2) - math.pow(self.link_3, 2)) / (2 * self.link_2 * self.link_3))
+    def forward_kinematics(self, q):
+        x = self.link_3 * cos(q[0]) * cos(q[1]+q[2]) + self.link_2 * cos(q[0]) * cos(q[1])
+        y = self.link_3 * sin(q[0]) * cos(q[1]+q[2]) + self.link_2 * sin(q[0]) * cos(q[1])
+        z = self.link_3 * sin(q[1] + q[2]) + self.link_2 * sin(q[1])
+        return [x, y, z]
+
+    def inverse_kinematics(self, legPos):
+        dyz=np.sqrt(legPos[1]**2+legPos[2]**2)
+        lyz=np.sqrt(dyz**2-self.link_1**2)
+        gamma_yz=-np.arctan(legPos[1]/legPos[2])
+        gamma_h_offset=-np.arctan(self.link_1/lyz)
+        theta_1=gamma_yz-gamma_h_offset
+        lxzp=np.sqrt(lyz**2+legPos[0]**2)
+        n=(lxzp**2-self.link_3**2-self.link_3**2)/(2*self.link_2)
+        theta_3=-np.arccos(n/self.link_3)
+        alfa_xzp=-np.arctan(legPos[0]/lyz)
+        alfa_off=np.arccos((self.link_2+n)/lxzp)
+        theta_2=alfa_xzp+alfa_off
         return [theta_1, theta_2, theta_3]
     
 
@@ -61,19 +56,20 @@ class Robot:
         self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, [10, 11, 12], timeStep)
         self.client.resetBasePositionAndOrientation(self.robotId, initBodyPos[0:3], [0, 0, 0, 1.])
         
-    def set_control(self, body_pos, RF_pos, LF_pos, RH_pos, LH_pos):
+    def set_control(self, RF_pos, LF_pos, RH_pos, LH_pos):
         x = [0.] * 24
         for i in range(11):
             x[i], x[i + 2], _, _ = self.client.getJointState(0, i + 1)
-        q = self.calculate_inverse_kinematics(body_pos, RF_pos, LF_pos, RH_pos, LH_pos)
+        q = self.calculate_inverse_kinematics(RF_pos, LF_pos, RH_pos, LH_pos)
         for i in range(self.client.getNumJoints(0)):
             self.client.setJointMotorControl2(0, i, pb.POSITION_CONTROL, force=100, targetPosition=q[i], targetVelocity=0)
 
-    def calculate_inverse_kinematics(self, body_pos, RF_pos, LF_pos, RH_pos, LH_pos):
-        qRF = self.RF.inverse_kinematics(body_pos, RF_pos)
-        qLF = self.LF.inverse_kinematics(body_pos, LF_pos)
-        qRH = self.RH.inverse_kinematics(body_pos, RH_pos)
-        qLH = self.LH.inverse_kinematics(body_pos, LH_pos)
+    def calculate_inverse_kinematics(self, RF_pos, LF_pos, RH_pos, LH_pos):
+        qRF = self.RF.inverse_kinematics(RF_pos)
+        # print(self.LH.forward_kinematics(qRF))
+        qLF = self.LF.inverse_kinematics(LF_pos)
+        qRH = self.RH.inverse_kinematics(RH_pos)
+        qLH = self.LH.inverse_kinematics(LH_pos)
         q = [qRF[0], qRF[1], qRF[2], qLF[0], qLF[1], qLF[2], qRH[0], qRH[1], qRH[2], qLH[0], qLH[1], qLH[2]]
         return q
     

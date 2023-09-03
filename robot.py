@@ -12,16 +12,31 @@ class leg():
         self.origin = origin
         self.isRight = isRigth
         self.link_1 = 0.
-        self.link_2 = 0.18
-        self.link_3 = 0.18
+        self.link_2 = 0.20
+        self.link_3 = 0.20
         self.phi = phi
         self.Tp = Tp
         self.linkIdx = linkidx
 
     def forward_kinematics(self, q):
-        x = self.link_3 * cos(q[0]) * cos(q[1]+q[2]) + self.link_2 * cos(q[0]) * cos(q[1])
-        y = self.link_3 * sin(q[0]) * cos(q[1]+q[2]) + self.link_2 * sin(q[0]) * cos(q[1])
-        z = self.link_3 * sin(q[1] + q[2]) + self.link_2 * sin(q[1])
+        if self.isRight:
+            T_0_1 = np.array([[cos(q[0]), -sin(q[0]), 0, 0], [sin(q[0]), cos(q[0]), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_1_2 = np.array([[cos(q[1]), -sin(q[1]), 0, 0], [0, 0, -1, 0], [sin(q[1]), cos(q[1]), 0, 0], [0, 0, 0, 1]])
+            T_2_3 = np.array([[cos(q[2]), -sin(q[2]), 0, self.link_2], [sin(q[2]), cos(q[2]), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_3_4 = np.array([[1, 0, 0, self.link_3], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_0_4 = T_0_1 @ T_1_2 @ T_2_3 @ T_3_4
+            x = T_0_4[0][3]
+            y = T_0_4[1][3]
+            z = T_0_4[2][3]
+        else:
+            T_0_1 = np.array([[cos(q[0]), -sin(q[0]), 0, 0], [sin(q[0]), cos(q[0]), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_1_2 = np.array([[cos(q[1]), -sin(q[1]), 0, 0], [0, 0, 1, 0], [-sin(q[1]), -cos(q[1]), 0, 0], [0, 0, 0, 1]])
+            T_2_3 = np.array([[cos(q[2]), -sin(q[2]), 0, self.link_2], [sin(q[2]), cos(q[2]), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_3_4 = np.array([[1, 0, 0, self.link_3], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            T_0_4 = T_0_1 @ T_1_2 @ T_2_3 @ T_3_4
+            x = T_0_4[0][3]
+            y = T_0_4[1][3]
+            z = T_0_4[2][3]
         return [x, y, z]
 
     def inverse_kinematics(self, legPos):
@@ -51,8 +66,8 @@ class Robot:
         for j in range(12):
             self.client.setJointMotorControl2(0, j, pb.POSITION_CONTROL, force=0)
         self.RF = leg(True, np.array([0.2,-0.11,0.]), -math.pi/2, [1, 2, 3], timeStep)
-        self.LF = leg(True, np.array([0.2,0.11,0.]), math.pi/2, [4, 5, 6], timeStep)
-        self.RH = leg(False, np.array([-0.2,-0.11,0.]), math.pi/2, [7, 8, 9], timeStep)
+        self.LF = leg(False, np.array([0.2,0.11,0.]), math.pi/2, [4, 5, 6], timeStep)
+        self.RH = leg(True, np.array([-0.2,-0.11,0.]), math.pi/2, [7, 8, 9], timeStep)
         self.LH = leg(False, np.array([-0.2,0.11,0.]), -math.pi/2, [10, 11, 12], timeStep)
         self.client.resetBasePositionAndOrientation(self.robotId, initBodyPos[0:3], [0, 0, 0, 1.])
         
@@ -66,10 +81,14 @@ class Robot:
 
     def calculate_inverse_kinematics(self, RF_pos, LF_pos, RH_pos, LH_pos):
         qRF = self.RF.inverse_kinematics(RF_pos)
-        # print(self.LH.forward_kinematics(qRF))
         qLF = self.LF.inverse_kinematics(LF_pos)
         qRH = self.RH.inverse_kinematics(RH_pos)
         qLH = self.LH.inverse_kinematics(LH_pos)
+        print("rdy")
+        print(self.RF.forward_kinematics(qRF))
+        print(self.LF.forward_kinematics(qLF))
+        print(self.RH.forward_kinematics(qRH))
+        print(self.LH.forward_kinematics(qLH))
         q = [qRF[0], qRF[1], qRF[2], qLF[0], qLF[1], qLF[2], qRH[0], qRH[1], qRH[2], qLH[0], qLH[1], qLH[2]]
         return q
     

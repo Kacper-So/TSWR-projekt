@@ -18,6 +18,8 @@ class leg():
         self.Tp = Tp
         self.phase = initialPhase
         self.linkIdx = linkidx
+        self.stepLength = 0.01
+        self.stepHeight = 0.02
 
     def forward_kinematics(self, q):
         if self.isRight:
@@ -54,12 +56,18 @@ class leg():
         theta_2=alfa_xzp+alfa_off
         return [theta_1, theta_2, theta_3]
     
-    # def calculate_trajcetory(self, phase, elapsed):
-    #     if phase:
-            
-    #     else:
-    #         x = 
-    #     return [x, y, z]
+    def calculate_trajcetory(self, elapsed, phaseLength):
+        phi = (2 * math.pi * elapsed) / phaseLength
+        if self.phase:
+            x = self.stepLength * ((phi - sin(phi)) / 2 * math.pi)
+            y = 0
+            z = 0.3 - (self.stepHeight * (1 - cos(phi)) / 2 * math.pi)
+        else:
+            x = 0.2 - (elapsed / phaseLength) * 0.2
+            y = 0
+            z = 0.3
+
+        return [x, y, z]
     
 
 class Robot:
@@ -70,8 +78,9 @@ class Robot:
         self.planeId = self.client.loadURDF("plane.urdf")
         self.client.setTimeStep(timeStep)
         self.elapsed = 0
-        self.phaseLenght = 1
+        self.phaseLenght = 0.5
         self.Tp = timeStep
+        self.initComplete = False
         for j in range(12):
             self.client.setJointMotorControl2(0, j, pb.POSITION_CONTROL, force=0)
         self.RF = leg(True, np.array([0.2,-0.11,0.]), -math.pi/2, [1, 2, 3], False, timeStep)
@@ -105,9 +114,19 @@ class Robot:
         self.client.stepSimulation()
         time.sleep(self.Tp)
         self.elapsed = self.elapsed + self.Tp
-        if self.elapsed > self.phaseLenght:
-            self.elapsed = 0
-            self.LF.phase = not self.LF.phase
-            self.LH.phase = not self.LH.phase
-            self.RF.phase = not self.RF.phase
-            self.RH.phase = not self.RH.phase
+        if self.elapsed > 2:
+            self.initComplete = True
+
+        if self.initComplete:
+            if self.elapsed > self.phaseLenght:
+                # print("phase change")
+                self.elapsed = 0
+                self.LF.phase = not self.LF.phase
+                self.LH.phase = not self.LH.phase
+                self.RF.phase = not self.RF.phase
+                self.RH.phase = not self.RH.phase
+            LF_traj = self.LF.calculate_trajcetory(self.elapsed, self.phaseLenght)
+            LH_traj = self.LH.calculate_trajcetory(self.elapsed, self.phaseLenght)
+            RF_traj = self.RF.calculate_trajcetory(self.elapsed, self.phaseLenght)
+            RH_traj = self.RH.calculate_trajcetory(self.elapsed, self.phaseLenght)
+            self.set_control(RF_traj, LF_traj, RH_traj, LH_traj)
